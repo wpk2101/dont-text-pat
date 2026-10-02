@@ -1,0 +1,209 @@
+<title>Don't Text Pat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one narrow column built for a phone opened from the group chat — search first, then team rosters, dates, rules */
+:root{
+  --bg:#F2F4F6; --surface:#FFFFFF; --fg:#16212C; --muted:#5B6874; --line:#DCE1E6;
+  --accent:#C2302E; --accent-ink:#FFFFFF; --accent-soft:#FBE3E2; --no:#8A949E; --no-soft:#ECEFF2;
+  --mark:.16;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E151C; --surface:#17212B; --fg:#E8EDF2; --muted:#9AA7B3; --line:#2A3743;
+  --accent:#FF6F68; --accent-ink:#1A0606; --accent-soft:#3A1A1A; --mark:.2; --no:#7E8A95; --no-soft:#1F2A34; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E151C; --surface:#17212B; --fg:#E8EDF2; --muted:#9AA7B3; --line:#2A3743;
+  --accent:#FF6F68; --accent-ink:#1A0606; --accent-soft:#3A1A1A; --mark:.2; --no:#7E8A95; --no-soft:#1F2A34; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--body);font-variant-numeric:tabular-nums}
+.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:28px 48px;display:flex;flex-direction:column;gap:36px}
+h1,h2{font-family:var(--display);text-transform:uppercase;letter-spacing:.01em;line-height:.95;margin:0;text-wrap:balance}
+h1{font-size:clamp(2.6rem,11vw,3.6rem)}
+h1 span{color:var(--accent)}
+h2{font-size:1.7rem;margin-bottom:12px}
+.sub{color:var(--muted);margin:8px 0 0}
+.brand{position:relative;overflow:hidden;border-radius:18px;background:var(--surface);border:1px solid var(--line);padding:28px 20px 24px;min-height:170px;display:flex;flex-direction:column;justify-content:flex-end}
+.brand img{position:absolute;right:-70px;top:50%;transform:translateY(-50%);width:320px;height:320px;opacity:var(--mark);pointer-events:none;filter:saturate(.9)}
+.brand>div{position:relative;min-width:0}
+@media (max-width:420px){.brand img{width:260px;height:260px;right:-80px}}
+.label{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+#info{scroll-margin-top:16px}
+.jump{display:inline-block;margin-top:12px;font-weight:700;color:var(--accent);text-decoration:none;border-bottom:2px solid currentColor;padding-bottom:1px}
+.jump:hover,.jump:focus-visible{opacity:.8;outline:none}
+.prompt{margin:22px 0 8px;font-weight:600}
+.search{position:relative}
+.search input{width:100%;box-sizing:border-box;font:600 1.15rem var(--body);padding:16px 18px;border:2px solid var(--line);border-radius:12px;background:var(--surface);color:var(--fg);outline:none}
+.search input:focus{border-color:var(--accent)}
+.tries{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+.chip{font:600 .85rem var(--body);border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:6px 12px;border-radius:999px;cursor:pointer}
+.chip:hover,.chip:focus-visible{border-color:var(--accent);outline:none}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+#results{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:4px 16px;align-items:start}
+.card .nm{font-weight:700;font-size:1.1rem;min-width:0}
+.card .tm{color:var(--muted);font-size:.9rem;grid-column:1}
+.card .px{grid-row:1/3;grid-column:2;font-family:var(--display);font-size:2.6rem;line-height:1;color:var(--accent);text-align:right}
+.card .px small{display:block;font-family:var(--body);font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.card .math{grid-column:1/-1;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-size:.92rem;color:var(--muted)}
+.card .math b{color:var(--fg);font-weight:600}
+.card.no .px{color:var(--no);font-size:1.4rem;padding-top:6px}
+.yr{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-left:6px;vertical-align:2px}
+.empty{color:var(--muted);padding:8px 2px}
+.teams{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.roster{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:11px 16px;border-top:1px solid var(--line);align-items:center}
+.row:first-child{border-top:0}
+.row .p{min-width:0}
+.row .p div{font-weight:600}
+.row .p span{font-size:.82rem;color:var(--muted)}
+.row .v{font-family:var(--display);font-size:1.5rem;color:var(--fg)}
+.row.no .v{font-family:var(--body);font-size:.8rem;font-weight:600;color:var(--no);background:var(--no-soft);padding:3px 8px;border-radius:6px}
+.dates{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.d{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:12px 16px;border-top:1px solid var(--line)}
+.d:first-child{border-top:0}
+.d .k{font-weight:600}
+.d .w{text-align:right;font-weight:600}
+.d .c{grid-column:1/-1;font-size:.82rem;color:var(--muted)}
+.d.next{background:var(--accent-soft)}
+.d.next .c{color:var(--accent);font-weight:600}
+.d.past{opacity:.55}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.fact b{display:block;font-family:var(--display);font-size:1.9rem;line-height:1}
+.rules{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.rules p{margin:0 0 10px;max-width:62ch}
+.formula{font-weight:700;font-size:1.05rem;margin-bottom:12px}
+.ladder{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 14px}
+.ladder div{flex:1 1 70px;border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}
+.ladder b{display:block;font-family:var(--display);font-size:1.5rem;color:var(--accent)}
+.ladder span{font-size:.75rem;color:var(--muted)}
+.rules ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+footer{color:var(--muted);font-size:.85rem}
+@media (max-width:420px){.facts{grid-template-columns:1fr 1fr 1fr}.fact b{font-size:1.5rem}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="brand"><img src="data:image/png;base64,__LOGO__" alt="">
+  <div><div class="label">2026-27 season · draft Sun Oct 18</div>
+  <h1>Don't Text <span>Pat</span></h1>
+  <p class="sub">Keeper prices, rosters, dates and money for 2026-27.</p>
+  <a class="jump" href="#info">Key dates and info ↓</a></div></div>
+  <p class="prompt">Type a player to get his price</p>
+  <div class="search"><input id="q" type="search" placeholder="Player name, e.g. Cade" autocomplete="off" aria-label="Search player"></div>
+  <div class="tries"><span class="label">Try</span>
+    <button class="chip" data-q="Cade">Cade</button><button class="chip" data-q="Wemby">Wemby</button><button class="chip" data-q="SGA">SGA</button><button class="chip" data-q="Coop">Coop</button><button class="chip" data-q="Playoff P">Playoff P</button></div>
+  <div id="results" aria-live="polite"></div>
+</header>
+
+<section>
+  <h2>By team</h2>
+  <div class="teams" id="teams"></div>
+  <div class="roster" id="roster"></div>
+</section>
+
+<section id="info">
+  <h2>Key dates and info</h2>
+  <div class="facts">
+    <div class="fact"><span class="label">Keepers</span><b>3</b></div>
+    <div class="fact"><span class="label">Salary cap</span><b>$200</b></div>
+    <div class="fact"><span class="label">Draft</span><b>8:15p</b></div>
+  </div>
+  <div class="dates" id="dates"></div>
+</section>
+
+<section>
+  <h2>Money</h2>
+  <div class="dates">
+    <div class="d"><div class="k">Dues</div><div class="w">$65</div></div>
+    <div class="d"><div class="k">1st place</div><div class="w">$300 + $100 memorabilia fund</div></div>
+    <div class="d"><div class="k">2nd place</div><div class="w">$150</div></div>
+    <div class="d"><div class="k">3rd place</div><div class="w">$50</div></div>
+    <div class="d"><div class="k">Regular season champ</div><div class="w">$50</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>How prices work</h2>
+  <div class="rules">
+    <p class="formula">Keeper price = last year's price + $5 × years kept (counting this year)</p>
+    <p>Last year's price is the higher of his 2025 draft price or the free-agent bid paid for him. A $20 player climbs like this:</p>
+    <div class="ladder"><div><b>$25</b><span>1st year</span></div><div><b>$35</b><span>2nd year</span></div><div><b>$50</b><span>3rd year</span></div><div><b>$70</b><span>4th year</span></div></div>
+    <ul>
+      <li>Only players on a roster at the end of last season can be kept.</li>
+      <li>Pickups made after Feb 23, 2026 can't be kept this year.</li>
+      <li>A player's years-kept count follows him through trades and drops.</li>
+      <li>For next year: players must be picked up by Feb 11, 2027 to be keepable.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>Prices come from ESPN end-of-season rosters, the 2025 draft recap, and the league keeper sheet. See something wrong? Tell Pat before keepers lock Sat Oct 17, 10pm ET.</footer>
+</div>
+
+<script>
+const DATA = __DATA__;
+const OWN = Object.fromEntries(DATA.teams.map(t=>[t.ab,t]));
+const ALIAS = {sga:"Shai Gilgeous-Alexander",shai:"Shai Gilgeous-Alexander",wemby:"Victor Wembanyama",kat:"Karl-Anthony Towns",kd:"Kevin Durant",ant:"Anthony Edwards",steph:"Stephen Curry",bron:"LeBron James",ad:"Anthony Davis",jjj:"Jaren Jackson Jr.",mpj:"Michael Porter Jr.",melo:"LaMelo Ball",jdub:"Jalen Williams",dlo:"D'Angelo Russell",kp:"Kristaps Porzingis",og:"OG Anunoby",bam:"Bam Adebayo",zion:"Zion Williamson",cade:"Cade Cunningham",luka:"Luka Doncic",jokic:"Nikola Jokic",joker:"Nikola Jokic",giannis:"Giannis Antetokounmpo",greek:"Giannis Antetokounmpo",flagg:"Cooper Flagg",coop:"Cooper Flagg",cooper:"Cooper Flagg",playoffp:"Paul George",pg:"Paul George"};
+const norm=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z ]/g,"").trim();
+const fmtD=d=>new Date(d+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"});
+const ord=n=>n+(["th","st","nd","rd"][(n%100-20)%10]||["th","st","nd","rd"][n%100]||"th");
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function baseLine(p){
+  if(p.yrs>1) return `Kept last year (${p.yrs===2?"1st year":ord(p.yrs-1)+" straight year"}) at <b>$${p.base}</b>`;
+  if(p.draft!=null && p.draft>=p.paid) return `Drafted for <b>$${p.draft}</b>`;
+  return `Picked up for <b>$${p.paid}</b>`;
+}
+function card(p){
+  const t=OWN[p.t];
+  if(!p.eligible) return `<div class="card no"><div class="nm">${esc(p.n)}</div><div class="tm">${t.owner}</div><div class="px">Not keepable</div><div class="math">Picked up ${fmtD(p.date)}, after the Feb 23 pickup deadline.</div></div>`;
+  const yrTag = `<span class="yr">${ord(p.yrs)} year kept</span>`;
+  return `<div class="card"><div class="nm">${esc(p.n)}${yrTag}</div><div class="tm">${t.owner}</div><div class="px">$${p.price}<small>keeper price</small></div><div class="math">${baseLine(p)} + $5 × ${p.yrs} = <b>$${p.price}</b></div></div>`;
+}
+const q=document.getElementById("q"), out=document.getElementById("results");
+function search(){
+  const s=norm(q.value);
+  if(!s){out.innerHTML="";return;}
+  const target=ALIAS[s.replace(/ /g,"")];
+  let hits=DATA.players.filter(p=>target? p.n===target : norm(p.n).split(" ").some(w=>w.startsWith(s))||norm(p.n).includes(s));
+  hits.sort((a,b)=>(b.price||0)-(a.price||0));
+  let html=hits.slice(0,8).map(card).join("");
+  const off=DATA.offRoster.filter(n=>target? n===target : norm(n).split(" ").some(w=>w.startsWith(s))||norm(n).includes(s));
+  html+=off.slice(0,4).map(n=>`<div class="card no"><div class="nm">${esc(n)}</div><div class="tm">Drafted in 2025, not on a roster at season end</div><div class="px">Not keepable</div></div>`).join("");
+  out.innerHTML=html||`<div class="empty">No player matches "${esc(q.value)}". Undrafted players who were never picked up have no keeper price.</div>`;
+}
+q.addEventListener("input",search);
+document.querySelectorAll(".tries .chip").forEach(b=>b.onclick=()=>{q.value=b.dataset.q;search();q.focus();});
+
+const teamsEl=document.getElementById("teams"), rosterEl=document.getElementById("roster");
+function showTeam(ab){
+  teamsEl.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.ab===ab));
+  const ps=DATA.players.filter(p=>p.t===ab).sort((a,b)=>(b.price??-1)-(a.price??-1));
+  rosterEl.innerHTML=ps.map(p=>p.eligible
+    ? `<div class="row"><div class="p"><div>${esc(p.n)}${p.yrs>1?`<span class="yr">${ord(p.yrs)} yr</span>`:""}</div><span>${baseLine(p).replace(/<\/?b>/g,"")} + $${5*p.yrs}</span></div><div class="v">$${p.price}</div></div>`
+    : `<div class="row no"><div class="p"><div>${esc(p.n)}</div><span>Picked up ${fmtD(p.date)}, after deadline</span></div><div class="v">Not keepable</div></div>`).join("");
+  try{localStorage.setItem("team",ab)}catch(e){}
+}
+DATA.teams.forEach(t=>{const b=document.createElement("button");b.className="chip";b.dataset.ab=t.ab;b.textContent=t.owner;b.onclick=()=>showTeam(t.ab);teamsEl.appendChild(b);});
+let saved=null;try{saved=localStorage.getItem("team")}catch(e){}
+showTeam(OWN[saved]?saved:DATA.teams[0].ab);
+
+const DATES=[
+ ["Keepers lock","2026-10-17","Sat Oct 17 · 10pm ET"],
+ ["Draft","2026-10-18","Sun Oct 18 · 8:15pm ET"],
+ ["Trade deadline","2027-02-11","Thu Feb 11, 2027"],
+ ["Last day to pick up a player you want to keep next year","2027-02-11","Thu Feb 11, 2027"],
+ ["Regular season ends","2027-03-07","Sun Mar 7, 2027"],
+ ["Playoffs begin","2027-03-08","Mon Mar 8, 2027"]];
+const today=new Date();today.setHours(0,0,0,0);
+let nextSet=false;
+document.getElementById("dates").innerHTML=DATES.map(([k,d,w])=>{
+  const days=Math.round((new Date(d+"T00:00:00")-today)/864e5);
+  let cls="d",c=days<0?"Done":days===0?"Today":days===1?"Tomorrow":`In ${days} days`;
+  if(days<0)cls+=" past"; else if(!nextSet){cls+=" next";nextSet=true;c="Next up · "+c;}
+  return `<div class="${cls}"><div class="k">${k}</div><div class="w">${w}</div><div class="c">${c}</div></div>`;}).join("");
+</script>
