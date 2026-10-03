@@ -148,7 +148,7 @@ footer{color:var(--muted);font-size:.85rem}
       <li>Only players on a roster at the end of last season can be kept.</li>
       <li>Pickups made after Feb 23, 2026 can't be kept this year.</li>
       <li>A player's years-kept count follows him through trades and drops.</li>
-      <li>For next year: players must be picked up by Feb 11, 2027 to be keepable.</li>
+      <li>For next year: players must be picked up by Feb 22, 2027 to be keepable.</li>
     </ul>
   </div>
 </section>
@@ -182,8 +182,8 @@ function card(p){
 
 /* Questions typed into search */
 const INFO=[
- {k:["trade","deadline","deadlines"],h:"Trade deadline",a:"Thu Feb 11, 2027"},
- {k:["pickup","pickups","waiver","waivers","pick","fa","faab"],h:"Pickup deadline for next year's keepers",a:"Pick up by Thu Feb 11, 2027 to be keepable for 2027-28"},
+ {k:["trade","deadline","deadlines"],h:"Trade deadline",a:"Mon Feb 22, 2027 · noon ET"},
+ {k:["pickup","pickups","waiver","waivers","pick","fa","faab"],h:"Pickup deadline for next year's keepers",a:"Pick up by Mon Feb 22, 2027 to be keepable for 2027-28"},
  {k:["playoff","playoffs","postseason"],h:"Playoffs begin",a:"Mon Mar 8, 2027 · regular season ends Sun Mar 7"},
  {k:["season","regular","end","ends"],h:"Regular season ends",a:"Sun Mar 7, 2027 · playoffs start Mon Mar 8"},
  {k:["draft","auction"],h:"Draft",a:"Sun Oct 18 · 8:15pm ET · $200 budget"},
@@ -270,8 +270,8 @@ showTeam(OWN[saved]?saved:DATA.teams[0].ab);
 const DATES=[
  ["Keepers lock","2026-10-17","Sat Oct 17 · 10pm ET"],
  ["Draft","2026-10-18","Sun Oct 18 · 8:15pm ET"],
- ["Trade deadline","2027-02-11","Thu Feb 11, 2027"],
- ["Last day to pick up a player you want to keep next year","2027-02-11","Thu Feb 11, 2027"],
+ ["Trade deadline","2027-02-22","Mon Feb 22, 2027 · noon ET"],
+ ["Last day to pick up a player you want to keep next year","2027-02-22","Mon Feb 22, 2027"],
  ["Regular season ends","2027-03-07","Sun Mar 7, 2027"],
  ["Playoffs begin","2027-03-08","Mon Mar 8, 2027"]];
 const today=new Date();today.setHours(0,0,0,0);
