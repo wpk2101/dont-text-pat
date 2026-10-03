@@ -72,8 +72,9 @@ html{scroll-behavior:smooth}
 .empty{color:var(--muted);padding:8px 2px}
 .teams{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .roster{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.rhead{display:grid;grid-template-columns:1fr auto 14px;gap:12px;padding:10px 16px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+.rhead span:last-child{grid-column:2}
 .row{border-top:1px solid var(--line)}
-.row:first-child{border-top:0}
 .row summary{display:grid;grid-template-columns:1fr auto 14px;gap:12px;padding:12px 16px;align-items:center;cursor:pointer;list-style:none}
 .row summary::-webkit-details-marker{display:none}
 .row summary:hover{background:var(--bg)}
@@ -280,7 +281,7 @@ const teamsEl=document.getElementById("teams"), rosterEl=document.getElementById
 function showTeam(ab){
   teamsEl.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.ab===ab));
   const ps=DATA.players.filter(p=>p.t===ab).sort((a,b)=>(b.price??-1)-(a.price??-1));
-  rosterEl.innerHTML=ps.map(p=>`<details class="row${p.eligible?"":" no"}"><summary><div class="p"><div>${esc(p.n)}${p.eligible&&p.yrs>1?`<span class="yr">${ord(p.yrs)}-yr keeper</span>`:""}</div></div><div class="v">${p.eligible?"$"+p.price:"Not keepable"}</div><span class="chev" aria-hidden="true"></span></summary><div class="exp">${mathLine(p)}</div></details>`).join("");
+  rosterEl.innerHTML=`<div class="rhead"><span>Player</span><span>Keeper price</span></div>`+ps.map(p=>`<details class="row${p.eligible?"":" no"}"><summary><div class="p"><div>${esc(p.n)}${p.eligible&&p.yrs>1?`<span class="yr">${ord(p.yrs)}-yr keeper</span>`:""}</div></div><div class="v">${p.eligible?"$"+p.price:"Not keepable"}</div><span class="chev" aria-hidden="true"></span></summary><div class="exp">${mathLine(p)}</div></details>`).join("");
   try{localStorage.setItem("team",ab)}catch(e){}
 }
 DATA.teams.forEach(t=>{const b=document.createElement("button");b.className="chip";b.dataset.ab=t.ab;b.textContent=t.owner;b.onclick=()=>showTeam(t.ab);teamsEl.appendChild(b);});
