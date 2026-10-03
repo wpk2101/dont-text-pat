@@ -154,7 +154,7 @@ const ord=n=>n+(["th","st","nd","rd"][(n%100-20)%10]||["th","st","nd","rd"][n%10
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 function baseLine(p){
-  if(p.yrs>1) return `Kept in 2025-26 at <b>$${p.base}</b> (${p.yrs===2?"1st year":ord(p.yrs-1)+" straight year"})`;
+  if(p.yrs>1) return `Kept in 2025-26 at <b>$${p.base}</b>`;
   if(p.draft!=null && p.draft>=p.paid) return `Drafted for <b>$${p.draft}</b> in 2025-26`;
   return `Picked up for <b>$${p.paid}</b> in 2025-26`;
 }
@@ -162,7 +162,7 @@ function card(p){
   const t=OWN[p.t];
   if(!p.eligible) return `<div class="card no"><div class="nm">${esc(p.n)}</div><div class="tm">${t.owner}</div><div class="px">Not keepable</div><div class="math">Picked up ${fmtD(p.date)}, after the Feb 23 pickup deadline.</div></div>`;
   const yrTag = `<span class="yr">${ord(p.yrs)}-year keeper</span>`;
-  return `<div class="card"><div class="nm">${esc(p.n)}${yrTag}</div><div class="tm">${t.owner}</div><div class="px">$${p.price}<small>keeper price</small></div><div class="math">${baseLine(p)} + $5 × ${p.yrs} = <b>$${p.price}</b></div></div>`;
+  return `<div class="card"><div class="nm">${esc(p.n)}${yrTag}</div><div class="tm">${t.owner}</div><div class="px">$${p.price}<small>keeper price</small></div><div class="math">${baseLine(p)} + <b>$${5*p.yrs}</b> (${p.yrs===1?"1st year":ord(p.yrs)+" straight year"} × $5) = <b>$${p.price}</b></div></div>`;
 }
 const q=document.getElementById("q"), out=document.getElementById("results");
 function search(){
