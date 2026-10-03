@@ -154,14 +154,14 @@ const ord=n=>n+(["th","st","nd","rd"][(n%100-20)%10]||["th","st","nd","rd"][n%10
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 function baseLine(p){
-  if(p.yrs>1) return `Kept last year (${p.yrs===2?"1st year":ord(p.yrs-1)+" straight year"}) at <b>$${p.base}</b>`;
-  if(p.draft!=null && p.draft>=p.paid) return `Drafted for <b>$${p.draft}</b>`;
-  return `Picked up for <b>$${p.paid}</b>`;
+  if(p.yrs>1) return `Kept in 2025-26 at <b>$${p.base}</b> (${p.yrs===2?"1st year":ord(p.yrs-1)+" straight year"})`;
+  if(p.draft!=null && p.draft>=p.paid) return `Drafted for <b>$${p.draft}</b> in 2025-26`;
+  return `Picked up for <b>$${p.paid}</b> in 2025-26`;
 }
 function card(p){
   const t=OWN[p.t];
   if(!p.eligible) return `<div class="card no"><div class="nm">${esc(p.n)}</div><div class="tm">${t.owner}</div><div class="px">Not keepable</div><div class="math">Picked up ${fmtD(p.date)}, after the Feb 23 pickup deadline.</div></div>`;
-  const yrTag = `<span class="yr">${ord(p.yrs)} year kept</span>`;
+  const yrTag = `<span class="yr">${ord(p.yrs)}-year keeper</span>`;
   return `<div class="card"><div class="nm">${esc(p.n)}${yrTag}</div><div class="tm">${t.owner}</div><div class="px">$${p.price}<small>keeper price</small></div><div class="math">${baseLine(p)} + $5 × ${p.yrs} = <b>$${p.price}</b></div></div>`;
 }
 const q=document.getElementById("q"), out=document.getElementById("results");
@@ -184,7 +184,7 @@ function showTeam(ab){
   teamsEl.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.ab===ab));
   const ps=DATA.players.filter(p=>p.t===ab).sort((a,b)=>(b.price??-1)-(a.price??-1));
   rosterEl.innerHTML=ps.map(p=>p.eligible
-    ? `<div class="row"><div class="p"><div>${esc(p.n)}${p.yrs>1?`<span class="yr">${ord(p.yrs)} yr</span>`:""}</div><span>${baseLine(p).replace(/<\/?b>/g,"")} + $${5*p.yrs}</span></div><div class="v">$${p.price}</div></div>`
+    ? `<div class="row"><div class="p"><div>${esc(p.n)}${p.yrs>1?`<span class="yr">${ord(p.yrs)}-yr keeper</span>`:""}</div><span>${baseLine(p).replace(/<\/?b>/g,"")} + $${5*p.yrs}</span></div><div class="v">$${p.price}</div></div>`
     : `<div class="row no"><div class="p"><div>${esc(p.n)}</div><span>Picked up ${fmtD(p.date)}, after deadline</span></div><div class="v">Not keepable</div></div>`).join("");
   try{localStorage.setItem("team",ab)}catch(e){}
 }
