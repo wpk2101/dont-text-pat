@@ -49,6 +49,7 @@ html{scroll-behavior:smooth}
 .card .px small{display:block;font-family:var(--body);font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
 .card .math{grid-column:1/-1;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-size:.92rem;color:var(--muted)}
 .card .math b{color:var(--fg);font-weight:600}
+.card .next{margin-top:4px;font-size:.85rem;color:var(--muted)}
 .card.no .px{color:var(--no);font-size:1.4rem;padding-top:6px}
 .yr{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-left:6px;vertical-align:2px}
 .empty{color:var(--muted);padding:8px 2px}
@@ -88,7 +89,7 @@ footer{color:var(--muted);font-size:.85rem}
 <div class="wrap">
 <header>
   <div class="brand"><img src="data:image/png;base64,__LOGO__" alt="">
-  <div><div class="label">2026-27 season · draft Sun Oct 18</div>
+  <div><div class="label">2026-27 season · prices checked Oct 2</div>
   <h1>Don't Text <span>Pat</span></h1>
   <p class="sub">Keeper prices, rosters, dates and money for 2026-27.</p>
   <a class="jump" href="#info">Key dates and info ↓</a></div></div>
@@ -141,7 +142,7 @@ footer{color:var(--muted);font-size:.85rem}
   </div>
 </section>
 
-<footer>Prices come from ESPN end-of-season rosters, the 2025 draft recap, and the league keeper sheet. See something wrong? Tell Pat before keepers lock Sat Oct 17, 10pm ET.</footer>
+<footer>Last updated Oct 2, 2026. Prices come from ESPN end-of-season rosters, the 2025 draft recap, and the league keeper sheet. See something wrong? Tell Pat before keepers lock Sat Oct 17, 10pm ET.</footer>
 </div>
 
 <script>
@@ -162,7 +163,7 @@ function card(p){
   const t=OWN[p.t];
   if(!p.eligible) return `<div class="card no"><div class="nm">${esc(p.n)}</div><div class="tm">${t.owner}</div><div class="px">Not keepable</div><div class="math">Picked up ${fmtD(p.date)}, after the Feb 23 pickup deadline.</div></div>`;
   const yrTag = `<span class="yr">${ord(p.yrs)}-year keeper</span>`;
-  return `<div class="card"><div class="nm">${esc(p.n)}${yrTag}</div><div class="tm">${t.owner}</div><div class="px">$${p.price}<small>keeper price</small></div><div class="math">${baseLine(p)} + <b>$${5*p.yrs}</b> (${p.yrs===1?"1st year":ord(p.yrs)+" straight year"} × $5) = <b>$${p.price}</b></div></div>`;
+  return `<div class="card"><div class="nm">${esc(p.n)}${yrTag}</div><div class="tm">${t.owner}</div><div class="px">$${p.price}<small>keeper price</small></div><div class="math">${baseLine(p)} + <b>$${5*p.yrs}</b> (${p.yrs===1?"1st year":ord(p.yrs)+" straight year"} × $5) = <b>$${p.price}</b><div class="next">If kept again in 2027: $${p.price+5*(p.yrs+1)}</div></div></div>`;
 }
 const q=document.getElementById("q"), out=document.getElementById("results");
 function search(){
