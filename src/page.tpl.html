@@ -82,6 +82,7 @@ html{scroll-behavior:smooth}
 .d .k{font-weight:600}
 .d .w{text-align:right;font-weight:600}
 .d .c{grid-column:1/-1;font-size:.82rem;color:var(--muted)}
+.d.chg .c{line-height:1.4}
 .d.next{background:var(--accent-soft)}
 .d.next .c{color:var(--accent);font-weight:600}
 .d.past{opacity:.55}
@@ -118,6 +119,15 @@ footer{color:var(--muted);font-size:.85rem}
   <h2>By team</h2>
   <div class="teams" id="teams"></div>
   <div class="roster" id="roster"></div>
+</section>
+
+<section id="changes">
+  <h2>Key changes this season</h2>
+  <div class="dates">
+    <div class="d chg"><div class="k">New lineup</div><div class="w">3 G · 3 F · 1 C · 2 UTIL</div><div class="c">Was PG, SG, SF, PF, C, G, F + 3 UTIL. Any guard fits any G slot, any forward any F slot.</div></div>
+    <div class="d chg"><div class="k">New IR spot</div><div class="w">1 IR</div><div class="c">Stash a player listed as out instead of dropping him. Bench stays at 3.</div></div>
+    <div class="d chg"><div class="k">Waivers process</div><div class="w">Daily · 3pm ET</div><div class="c">Was noon ET.</div></div>
+  </div>
 </section>
 
 <section id="info">
@@ -186,7 +196,9 @@ function card(p){
 /* Questions typed into search */
 const INFO=[
  {k:["trade","deadline","deadlines"],h:"Trade deadline",a:"Mon Feb 22, 2027 · noon ET"},
- {k:["pickup","pickups","waiver","waivers","pick","fa","faab"],h:"Pickup deadline for next year's keepers",a:"Pick up by Mon Feb 22, 2027 to be keepable for 2027-28"},
+ {k:["waiver","waivers","claim","claims","process","processing"],h:"Waivers",a:"Process daily at 3pm ET · $100 budget · 4 pickups per week"},
+ {k:["roster","rosters","lineup","lineups","position","positions","ir","bench","slots","util","change","changes","new"],h:"Roster this season",a:"3 G · 3 F · 1 C · 2 UTIL · 3 bench · 1 IR"},
+ {k:["pickup","pickups","pick","fa","faab"],h:"Pickup deadline for next year's keepers",a:"Pick up by Mon Feb 22, 2027 to be keepable for 2027-28"},
  {k:["playoff","playoffs","postseason"],h:"Playoffs begin",a:"Mon Mar 8, 2027 · regular season ends Sun Mar 7"},
  {k:["season","regular","end","ends"],h:"Regular season ends",a:"Sun Mar 7, 2027 · playoffs start Mon Mar 8"},
  {k:["draft","auction"],h:"Draft",a:"Sun Oct 18 · 8:15pm ET · $200 budget"},
