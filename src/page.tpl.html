@@ -106,7 +106,7 @@ footer{color:var(--muted);font-size:.85rem}
   <div><div class="label">2026-27 season · prices checked Oct 2</div>
   <h1>Don't Text <span>Pat</span> <small>(any fantasy basketball questions)</small></h1>
   <p class="sub">Keeper prices, rosters, dates and money for 2026-27.</p>
-  <a class="jump" href="#info">Key dates and info ↓</a></div></div>
+  <a class="jump" href="#info">Draft and season info ↓</a></div></div>
   <p class="prompt">Type a player to get his price, or ask a quick question</p>
   <div class="search"><input id="q" type="search" placeholder="Player, or a question like &quot;trade deadline&quot;" autocomplete="off" aria-label="Search player"></div>
   <div class="tries"><span class="label">Try</span>
@@ -121,28 +121,17 @@ footer{color:var(--muted);font-size:.85rem}
 </section>
 
 <section id="info">
-  <h2>Key dates and info</h2>
-  <div class="facts">
-    <div class="fact"><span class="label">Keepers</span><b>3</b></div>
-    <div class="fact"><span class="label">Salary cap</span><b>$200</b></div>
-    <div class="fact"><span class="label">Draft</span><b>8:15p</b></div>
-  </div>
-  <div class="dates" id="dates"></div>
+  <h2>Draft info</h2>
+  <div class="dates" id="ddates"></div>
 </section>
 
 <section>
-  <h2>Money</h2>
-  <div class="dates">
-    <div class="d"><div class="k">Dues</div><div class="w">$65</div></div>
-    <div class="d"><div class="k">1st place</div><div class="w">$300 + $100 memorabilia fund</div></div>
-    <div class="d"><div class="k">2nd place</div><div class="w">$150</div></div>
-    <div class="d"><div class="k">3rd place</div><div class="w">$50</div></div>
-    <div class="d"><div class="k">Regular season champ</div><div class="w">$50</div></div>
-  </div>
+  <h2>Season info</h2>
+  <div class="dates" id="sdates"></div>
 </section>
 
 <section>
-  <h2>How prices work</h2>
+  <h2>Reminder: how keeper prices work</h2>
   <div class="rules">
     <p class="formula">Keeper price = last year's price + $5 × years kept (counting this year)</p>
     <p>Last year's price is the higher of his 2025 draft price or the free-agent bid paid for him. A $20 player climbs like this:</p>
@@ -153,6 +142,17 @@ footer{color:var(--muted);font-size:.85rem}
       <li>A player's years-kept count follows him through trades and drops.</li>
       <li>For next year: players must be picked up by Feb 22, 2027 to be keepable.</li>
     </ul>
+  </div>
+</section>
+
+<section>
+  <h2>Dues and payouts</h2>
+  <div class="dates">
+    <div class="d"><div class="k">Dues</div><div class="w">$65</div></div>
+    <div class="d"><div class="k">1st place</div><div class="w">$300 + $100 memorabilia fund</div></div>
+    <div class="d"><div class="k">2nd place</div><div class="w">$150</div></div>
+    <div class="d"><div class="k">3rd place</div><div class="w">$50</div></div>
+    <div class="d"><div class="k">Regular season champ</div><div class="w">$50</div></div>
   </div>
 </section>
 
@@ -244,13 +244,13 @@ function search(){
   let target=ALIAS[s.replace(/ /g,"")];
   if(!target) for(const w of s.split(" ")) if(ALIAS[w]){target=ALIAS[w];break;}
   let infos=target?[]:infoHits(s);
-  let html=infos.map(it=>`<div class="card info"><div class="nm">${it.h}</div><div class="ans">${it.a}</div><a class="more" href="#info">All dates and info ↓</a></div>`).join("");
+  let html=infos.map(it=>`<div class="card info"><div class="nm">${it.h}</div><div class="ans">${it.a}</div><a class="more" href="#info">All draft and season info ↓</a></div>`).join("");
   const hits=matchList(DATA.players.map(p=>p.n),s,target).sort((a,b)=>a[1]-b[1]||(PBY[b[0]].price||0)-(PBY[a[0]].price||0));
   const off=matchList(DATA.offRoster,s,target).sort((a,b)=>a[1]-b[1]);
   const all=[...hits.map(h=>({n:h[0],sc:h[1],p:PBY[h[0]]})),...off.map(h=>({n:h[0],sc:h[1]}))].sort((a,b)=>a.sc-b.sc);
   // if there are exact/prefix hits, hide the fuzzy guesses
   if(all.length) infos=infos.filter(i=>!i.weak);
-  html=infos.map(it=>`<div class="card info"><div class="nm">${it.h}</div><div class="ans">${it.a}</div><a class="more" href="#info">All dates and info ↓</a></div>`).join("");
+  html=infos.map(it=>`<div class="card info"><div class="nm">${it.h}</div><div class="ans">${it.a}</div><a class="more" href="#info">All draft and season info ↓</a></div>`).join("");
   const strong=all.filter(x=>x.sc<=1.5);
   const shown=(strong.length?strong:all).slice(0,infos.length?3:8);
   html+=shown.map(x=>x.p?card(x.p):`<div class="card no"><div class="nm">${esc(x.n)}</div><div class="tm">Drafted in 2025, not on a roster at season end</div><div class="px">Not keepable</div></div>`).join("");
@@ -270,18 +270,24 @@ DATA.teams.forEach(t=>{const b=document.createElement("button");b.className="chi
 let saved=null;try{saved=localStorage.getItem("team")}catch(e){}
 showTeam(OWN[saved]?saved:DATA.teams[0].ab);
 
-const DATES=[
+const DRAFT=[
+ ["Keepers per team",null,"3"],
  ["Keepers lock","2026-10-17","Sat Oct 17 · 10pm ET"],
  ["Draft","2026-10-18","Sun Oct 18 · 8:15pm ET"],
+ ["Salary cap",null,"$200, keepers included"]];
+const SEASON=[
  ["Trade deadline","2027-02-22","Mon Feb 22, 2027 · noon ET"],
  ["Last day to pick up a player you want to keep next year","2027-02-22","Mon Feb 22, 2027"],
  ["Regular season ends","2027-03-07","Sun Mar 7, 2027"],
  ["Playoffs begin","2027-03-08","Mon Mar 8, 2027"]];
 const today=new Date();today.setHours(0,0,0,0);
 let nextSet=false;
-document.getElementById("dates").innerHTML=DATES.map(([k,d,w])=>{
+const rowHTML=([k,d,w])=>{
+  if(!d) return `<div class="d"><div class="k">${k}</div><div class="w">${w}</div></div>`;
   const days=Math.round((new Date(d+"T00:00:00")-today)/864e5);
   let cls="d",c=days<0?"Done":days===0?"Today":days===1?"Tomorrow":`In ${days} days`;
   if(days<0)cls+=" past"; else if(!nextSet){cls+=" next";nextSet=true;c="Next up · "+c;}
-  return `<div class="${cls}"><div class="k">${k}</div><div class="w">${w}</div><div class="c">${c}</div></div>`;}).join("");
+  return `<div class="${cls}"><div class="k">${k}</div><div class="w">${w}</div><div class="c">${c}</div></div>`;};
+document.getElementById("ddates").innerHTML=DRAFT.map(rowHTML).join("");
+document.getElementById("sdates").innerHTML=SEASON.map(rowHTML).join("");
 </script>
