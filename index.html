@@ -74,6 +74,21 @@ html{scroll-behavior:smooth}
 .empty{color:var(--muted);padding:8px 2px}
 .teams{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .roster{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.bnote{margin:-4px 0 12px;color:var(--muted);font-size:.9rem;max-width:62ch}
+.h3{font-family:var(--display);text-transform:uppercase;font-size:1.3rem;margin:24px 0 8px}
+.board{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.bt{display:grid;grid-template-columns:1fr auto;gap:4px 16px;padding:12px 16px;border-top:1px solid var(--line)}
+.bt:first-child{border-top:0}
+.bt .o{font-weight:700}
+.bt .m{text-align:right;font-weight:700}
+.bt .m small{display:block;font-size:.75rem;font-weight:600;color:var(--muted)}
+.bt .ks{grid-column:1/-1;font-size:.85rem;color:var(--muted)}
+.bt.none .ks{color:var(--accent);font-weight:600}
+.pr{display:grid;grid-template-columns:2.2rem 1fr auto;gap:10px;padding:10px 16px;border-top:1px solid var(--line);align-items:center}
+.pr:first-child{border-top:0}
+.pr .rk{font-family:var(--display);font-size:1.2rem;color:var(--muted)}
+.pr .nm{font-weight:600;min-width:0}
+.pr .ls{font-size:.82rem;color:var(--muted);text-align:right}
 .rhead{display:grid;grid-template-columns:1fr auto 14px;gap:12px;padding:10px 16px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
 .rhead span:last-child{grid-column:2}
 .row{border-top:1px solid var(--line)}
@@ -134,6 +149,15 @@ footer{color:var(--muted);font-size:.85rem}
     <button class="chip" data-q="Cade">Cade</button><button class="chip" data-q="Wemby">Wemby</button><button class="chip" data-q="SGA">SGA</button><button class="chip" data-q="Coop">Coop</button><button class="chip" data-q="Playoff P">Playoff P</button></div>
   <div id="results" aria-live="polite"></div>
 </header>
+
+<section id="board">
+  <h2>Draft board</h2>
+  <p class="bnote">Keepers locked Sun Oct 18 at noon. Rosters have 12 spots, so max bid = budget left minus $1 for each other open spot.</p>
+  <div class="board" id="boardList"></div>
+  <h3 class="h3">Best players back in the auction</h3>
+  <p class="bnote">Ranked by RotoWire's category-league top 150 (Oct 9). 2025 price is what he cost last year.</p>
+  <div class="roster" id="poolList"></div>
+</section>
 
 <section>
   <h2>By team</h2>
@@ -223,6 +247,7 @@ const INFO=[
  {k:["season","regular","end","ends"],h:"Regular season ends",a:"Sun Mar 7, 2027 · playoffs start Mon Mar 8"},
  {k:["draft","auction"],h:"Draft",a:"Sun Oct 18 · 8:15pm ET · $200 budget"},
  {weak:1,k:["keeper","keepers","keep","lock","locks"],h:"Keepers",a:"3 per team · lock Sun Oct 18, noon ET"},
+ {k:["board","left","max","maxbid","kept","available","pool"],h:"Draft board",a:"Every team's keepers, budget left and max bid are in the draft board below"},
  {k:["cap","budget","salary"],h:"Salary cap",a:"$200"},
  {k:["dues","due","owe","pay","fee","buyin","venmo"],h:"Dues",a:"$65"},
  {k:["payout","payouts","prize","prizes","money","win","winner","first","second","third","champ","champion"],h:"Payouts",a:"1st $300 + $100 memorabilia fund · 2nd $150 · 3rd $50 · Regular season champ $50"},
@@ -291,6 +316,10 @@ function search(){
 q.addEventListener("input",search);
 document.querySelectorAll(".tries .chip").forEach(b=>b.onclick=()=>{q.value=b.dataset.q;search();q.focus();});
 
+
+const BOARD=[{"t": "PK", "owner": "Kerns", "keepers": [{"n": "Cooper Flagg", "price": 40, "yrs": 1}, {"n": "Kevin Durant", "price": 34, "yrs": 1}, {"n": "Kel'el Ware", "price": 8, "yrs": 1}], "spent": 82, "left": 118, "max": 110}, {"t": "SD", "owner": "D'Arcy", "keepers": [{"n": "Trey Murphy III", "price": 16, "yrs": 2}, {"n": "Kawhi Leonard", "price": 16, "yrs": 1}, {"n": "Dyson Daniels", "price": 20, "yrs": 2}], "spent": 52, "left": 148, "max": 140}, {"t": "SWIT", "owner": "Switzer", "keepers": [{"n": "Deni Avdija", "price": 16, "yrs": 2}, {"n": "Scottie Barnes", "price": 43, "yrs": 3}, {"n": "Stephon Castle", "price": 8, "yrs": 1}], "spent": 67, "left": 133, "max": 125}, {"t": "DEMA", "owner": "Dema", "keepers": [{"n": "Victor Wembanyama", "price": 71, "yrs": 3}, {"n": "Austin Reaves", "price": 18, "yrs": 2}, {"n": "Nickeil Alexander-Walker", "price": 6, "yrs": 1}], "spent": 95, "left": 105, "max": 97}, {"t": "DENN", "owner": "Denning", "keepers": [{"n": "Jamal Murray", "price": 21, "yrs": 1}, {"n": "Bam Adebayo", "price": 34, "yrs": 1}, {"n": "Desmond Bane", "price": 24, "yrs": 1}], "spent": 79, "left": 121, "max": 113}, {"t": "KOU", "owner": "Koulet", "keepers": [], "spent": 0, "left": 200, "max": 189}, {"t": "BRAN", "owner": "Bran", "keepers": [{"n": "Shai Gilgeous-Alexander", "price": 73, "yrs": 4}, {"n": "Jalen Duren", "price": 13, "yrs": 1}, {"n": "Nikola Jokic", "price": 88, "yrs": 1}], "spent": 174, "left": 26, "max": 18}, {"t": "TRIS", "owner": "Daigle", "keepers": [{"n": "Dylan Harper", "price": 6, "yrs": 1}, {"n": "Matas Buzelis", "price": 9, "yrs": 1}, {"n": "Amen Thompson", "price": 17, "yrs": 2}], "spent": 32, "left": 168, "max": 160}, {"t": "DION", "owner": "Dionne", "keepers": [{"n": "Tyrese Haliburton", "price": 7, "yrs": 1}, {"n": "Jayson Tatum", "price": 17, "yrs": 1}, {"n": "Tyrese Maxey", "price": 38, "yrs": 3}], "spent": 62, "left": 138, "max": 130}, {"t": "CURT", "owner": "Scully", "keepers": [{"n": "Joel Embiid", "price": 20, "yrs": 1}, {"n": "Dejounte Murray", "price": 7, "yrs": 1}, {"n": "Luka Doncic", "price": 84, "yrs": 1}], "spent": 111, "left": 89, "max": 81}], POOL=[{"r": 5, "n": "Cade Cunningham", "was": "Scully", "last": 57}, {"r": 7, "n": "Jalen Johnson", "was": "Bran", "last": 23}, {"r": 9, "n": "Anthony Edwards", "was": "Switzer", "last": 67}, {"r": 10, "n": "Giannis Antetokounmpo", "was": "Switzer", "last": 69}, {"r": 13, "n": "Donovan Mitchell", "was": "D'Arcy", "last": 38}, {"r": 15, "n": "Karl-Anthony Towns", "was": "Koulet", "last": 53}, {"r": 16, "n": "Stephen Curry", "was": "Dema", "last": 41}, {"r": 21, "n": "LaMelo Ball", "was": "Daigle", "last": 38}, {"r": 22, "n": "Alperen Sengun", "was": "Daigle", "last": 33}, {"r": 23, "n": "Anthony Davis", "was": null, "last": 60}, {"r": 24, "n": "Trae Young", "was": "Kerns", "last": 44}, {"r": 26, "n": "Josh Giddey", "was": "Scully", "last": 9}, {"r": 27, "n": "Lauri Markkanen", "was": "Koulet", "last": 12}, {"r": 28, "n": "Brandon Miller", "was": "Bran", "last": 13}, {"r": 29, "n": "Evan Mobley", "was": "Koulet", "last": 34}, {"r": 30, "n": "Chet Holmgren", "was": "Kerns", "last": 36}, {"r": 31, "n": "James Harden", "was": "Denning", "last": 39}, {"r": 32, "n": "Jalen Williams", "was": "Kerns", "last": 27}, {"r": 33, "n": "Devin Booker", "was": "Switzer", "last": 48}, {"r": 34, "n": "Domantas Sabonis", "was": null, "last": 38}, {"r": 36, "n": "Jaren Jackson Jr.", "was": null, "last": 20}, {"r": 39, "n": "Walker Kessler", "was": null, "last": 13}, {"r": 40, "n": "Derrick White", "was": "Bran", "last": 16}, {"r": 41, "n": "Jalen Brunson", "was": "Kerns", "last": 31}, {"r": 42, "n": "Kyrie Irving", "was": "Dionne", "last": 1}, {"r": 44, "n": "Jaylen Brown", "was": "Denning", "last": 35}, {"r": 45, "n": "Franz Wagner", "was": null, "last": 17}, {"r": 47, "n": "Darius Garland", "was": "Koulet", "last": 11}, {"r": 48, "n": "Onyeka Okongwu", "was": "Dema", "last": 2}, {"r": 49, "n": "Paolo Banchero", "was": "Denning", "last": 32}];
+document.getElementById("boardList").innerHTML=[...BOARD].sort((a,b)=>b.left-a.left).map(b=>`<div class="bt${b.keepers.length?"":" none"}"><div class="o">${b.owner}</div><div class="m">$${b.left} left<small>max bid $${b.max}</small></div><div class="ks">${b.keepers.length?b.keepers.map(k=>`${esc(k.n)} $${k.price}`).join(" · "):"No keepers set in ESPN"}</div></div>`).join("");
+document.getElementById("poolList").innerHTML=POOL.slice(0,25).map(x=>`<div class="pr"><div class="rk">${x.r}</div><div class="nm">${esc(x.n)}</div><div class="ls">${x.last?`2025: $${x.last}`:""}${x.was?` · ${x.was}`:""}</div></div>`).join("");
 const teamsEl=document.getElementById("teams"), rosterEl=document.getElementById("roster");
 function showTeam(ab){
   teamsEl.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.ab===ab));

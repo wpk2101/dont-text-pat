@@ -57,6 +57,21 @@ html{scroll-behavior:smooth}
 .empty{color:var(--muted);padding:8px 2px}
 .teams{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .roster{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.bnote{margin:-4px 0 12px;color:var(--muted);font-size:.9rem;max-width:62ch}
+.h3{font-family:var(--display);text-transform:uppercase;font-size:1.3rem;margin:24px 0 8px}
+.board{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.bt{display:grid;grid-template-columns:1fr auto;gap:4px 16px;padding:12px 16px;border-top:1px solid var(--line)}
+.bt:first-child{border-top:0}
+.bt .o{font-weight:700}
+.bt .m{text-align:right;font-weight:700}
+.bt .m small{display:block;font-size:.75rem;font-weight:600;color:var(--muted)}
+.bt .ks{grid-column:1/-1;font-size:.85rem;color:var(--muted)}
+.bt.none .ks{color:var(--accent);font-weight:600}
+.pr{display:grid;grid-template-columns:2.2rem 1fr auto;gap:10px;padding:10px 16px;border-top:1px solid var(--line);align-items:center}
+.pr:first-child{border-top:0}
+.pr .rk{font-family:var(--display);font-size:1.2rem;color:var(--muted)}
+.pr .nm{font-weight:600;min-width:0}
+.pr .ls{font-size:.82rem;color:var(--muted);text-align:right}
 .rhead{display:grid;grid-template-columns:1fr auto 14px;gap:12px;padding:10px 16px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
 .rhead span:last-child{grid-column:2}
 .row{border-top:1px solid var(--line)}
@@ -114,6 +129,15 @@ footer{color:var(--muted);font-size:.85rem}
     <button class="chip" data-q="Cade">Cade</button><button class="chip" data-q="Wemby">Wemby</button><button class="chip" data-q="SGA">SGA</button><button class="chip" data-q="Coop">Coop</button><button class="chip" data-q="Playoff P">Playoff P</button></div>
   <div id="results" aria-live="polite"></div>
 </header>
+
+<section id="board">
+  <h2>Draft board</h2>
+  <p class="bnote">Keepers locked Sun Oct 18 at noon. Rosters have 12 spots, so max bid = budget left minus $1 for each other open spot.</p>
+  <div class="board" id="boardList"></div>
+  <h3 class="h3">Best players back in the auction</h3>
+  <p class="bnote">Ranked by RotoWire's category-league top 150 (Oct 9). 2025 price is what he cost last year.</p>
+  <div class="roster" id="poolList"></div>
+</section>
 
 <section>
   <h2>By team</h2>
@@ -203,6 +227,7 @@ const INFO=[
  {k:["season","regular","end","ends"],h:"Regular season ends",a:"Sun Mar 7, 2027 · playoffs start Mon Mar 8"},
  {k:["draft","auction"],h:"Draft",a:"Sun Oct 18 · 8:15pm ET · $200 budget"},
  {weak:1,k:["keeper","keepers","keep","lock","locks"],h:"Keepers",a:"3 per team · lock Sun Oct 18, noon ET"},
+ {k:["board","left","max","maxbid","kept","available","pool"],h:"Draft board",a:"Every team's keepers, budget left and max bid are in the draft board below"},
  {k:["cap","budget","salary"],h:"Salary cap",a:"$200"},
  {k:["dues","due","owe","pay","fee","buyin","venmo"],h:"Dues",a:"$65"},
  {k:["payout","payouts","prize","prizes","money","win","winner","first","second","third","champ","champion"],h:"Payouts",a:"1st $300 + $100 memorabilia fund · 2nd $150 · 3rd $50 · Regular season champ $50"},
@@ -271,6 +296,10 @@ function search(){
 q.addEventListener("input",search);
 document.querySelectorAll(".tries .chip").forEach(b=>b.onclick=()=>{q.value=b.dataset.q;search();q.focus();});
 
+
+const BOARD=__BOARD__, POOL=__POOL__;
+document.getElementById("boardList").innerHTML=[...BOARD].sort((a,b)=>b.left-a.left).map(b=>`<div class="bt${b.keepers.length?"":" none"}"><div class="o">${b.owner}</div><div class="m">$${b.left} left<small>max bid $${b.max}</small></div><div class="ks">${b.keepers.length?b.keepers.map(k=>`${esc(k.n)} $${k.price}`).join(" · "):"No keepers set in ESPN"}</div></div>`).join("");
+document.getElementById("poolList").innerHTML=POOL.slice(0,25).map(x=>`<div class="pr"><div class="rk">${x.r}</div><div class="nm">${esc(x.n)}</div><div class="ls">${x.last?`2025: $${x.last}`:""}${x.was?` · ${x.was}`:""}</div></div>`).join("");
 const teamsEl=document.getElementById("teams"), rosterEl=document.getElementById("roster");
 function showTeam(ab){
   teamsEl.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.ab===ab));
