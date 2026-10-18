@@ -35,7 +35,7 @@ html{scroll-behavior:smooth}
 #info{scroll-margin-top:16px}
 .jump{display:inline-block;margin-top:12px;font-weight:700;color:var(--accent);text-decoration:none;border-bottom:2px solid currentColor;padding-bottom:1px}
 .jump:hover,.jump:focus-visible{opacity:.8;outline:none}
-.prompt{margin:22px 0 8px;font-weight:600}
+.prompt{margin:0 0 8px;font-family:var(--display);text-transform:uppercase;font-size:1.7rem;line-height:.95;font-weight:800}
 .search{position:relative}
 .search input{width:100%;box-sizing:border-box;font:600 1.15rem var(--body);padding:16px 18px;border:2px solid var(--line);border-radius:12px;background:var(--surface);color:var(--fg);outline:none}
 .search input:focus{border-color:var(--accent)}
@@ -129,24 +129,30 @@ footer{color:var(--muted);font-size:.85rem}
   <div class="brand"><img src="data:image/png;base64,__LOGO__" alt="">
   <div><div class="label">2026-27 season · prices checked Oct 18</div>
   <h1>Don't Text <span>Pat</span> <small>(any fantasy basketball questions)</small></h1>
-  <p class="sub">Keeper prices, rosters, dates and money for 2026-27.</p>
+  <p class="sub">Draft board, dates and money for 2026-27.</p>
   <a class="jump" href="#info">Draft and season info ↓</a></div></div>
-  <p class="prompt">Type a player to get his price, or ask a quick question</p>
-  <div class="search"><input id="q" type="search" placeholder="Player, or a question like &quot;trade deadline&quot;" autocomplete="off" aria-label="Search player"></div>
-  <div class="tries"><span class="label">Try</span>
-    <button class="chip" data-q="Cade">Cade</button><button class="chip" data-q="Wemby">Wemby</button><button class="chip" data-q="SGA">SGA</button><button class="chip" data-q="Coop">Coop</button><button class="chip" data-q="Playoff P">Playoff P</button></div>
-  <div id="results" aria-live="polite"></div>
 </header>
 
 <section id="board">
   <h2>Draft board</h2>
   <p class="bnote">Keepers locked Sun Oct 18 at noon. Rosters have 12 spots, so max bid = budget left minus $1 for each other open spot.</p>
   <div class="board" id="boardList"></div>
-  <h3 class="h3">Best players back in the auction</h3>
+</section>
+
+
+<section id="ask">
+  <p class="prompt">Ask a quick question</p>
+  <div class="search"><input id="q" type="search" placeholder="e.g. trade deadline, or a player" autocomplete="off" aria-label="Ask a question or search a player"></div>
+  <div class="tries"><span class="label">Try</span>
+    <button class="chip" data-q="Trade deadline">Trade deadline</button><button class="chip" data-q="Waivers">Waivers</button><button class="chip" data-q="Playoffs">Playoffs</button><button class="chip" data-q="Dues">Dues</button></div>
+  <div id="results" aria-live="polite"></div>
+</section>
+
+<section id="pool">
+  <h2>Best players back in the auction</h2>
   <p class="bnote">Ranked by RotoWire's category-league top 150 (Oct 9). 2025 price is what he cost last year.</p>
   <div class="roster" id="poolList"></div>
 </section>
-
 
 <section id="changes">
   <h2>Key changes this season</h2>
@@ -221,10 +227,13 @@ function mathLine(p){
   if(!p.eligible) return `Picked up ${fmtD(p.date)}, after the Feb 23 pickup deadline, so he can't be kept this year.`;
   return `${baseLine(p)} + <b>$${5*p.yrs}</b> (${p.yrs===1?"1st year":ord(p.yrs)+" straight year"} × $5) = <b>$${p.price}</b><div class="next">If kept again in 2027: $${p.price+5*(p.yrs+1)}</div>`;
 }
+let KEPT=null;
 function card(p){
+  if(!KEPT){KEPT={};for(const b of BOARD)for(const k of b.keepers)KEPT[k.n]=b.owner;}
   const t=OWN[p.t];
-  if(!p.eligible) return `<div class="card no"><div class="nm">${esc(p.n)}</div><div class="tm">${t.owner}</div><div class="px">Not keepable</div><div class="math">${mathLine(p)}</div></div>`;
-  return `<div class="card"><div class="nm">${esc(p.n)}<span class="yr">${ord(p.yrs)}-year keeper</span></div><div class="tm">${t.owner}</div><div class="px">$${p.price}<small>keeper price</small></div><div class="math">${mathLine(p)}</div></div>`;
+  if(KEPT[p.n]) return `<div class="card"><div class="nm">${esc(p.n)}<span class="yr">${ord(p.yrs)}-year keeper</span></div><div class="tm">Kept by ${KEPT[p.n]}</div><div class="px">$${p.price}<small>keeper price</small></div><div class="math">${mathLine(p)}</div></div>`;
+  const last=baseLine(p);
+  return `<div class="card no"><div class="nm">${esc(p.n)}</div><div class="tm">Not kept · was on ${t.owner}</div><div class="px">In the auction</div><div class="math">${last}. Back in the player pool for tonight's draft.</div></div>`;
 }
 
 /* Questions typed into search */
@@ -300,7 +309,7 @@ function search(){
   html=infos.map(it=>`<div class="card info"><div class="nm">${it.h}</div><div class="ans">${it.a}</div><a class="more" href="#info">All draft and season info ↓</a></div>`).join("");
   const strong=all.filter(x=>x.sc<=1.5);
   const shown=(strong.length?strong:all).slice(0,infos.length?3:8);
-  html+=shown.map(x=>x.p?card(x.p):`<div class="card no"><div class="nm">${esc(x.n)}</div><div class="tm">Drafted in 2025, not on a roster at season end</div><div class="px">Not keepable</div></div>`).join("");
+  html+=shown.map(x=>x.p?card(x.p):`<div class="card no"><div class="nm">${esc(x.n)}</div><div class="tm">Not on a roster at the end of last season</div><div class="px">In the auction</div></div>`).join("");
   out.innerHTML=html||`<div class="empty">Nothing matches "${esc(q.value)}". Try a last name, or a question like "trade deadline" or "dues". Undrafted players who were never picked up have no keeper price.</div>`;
 }
 q.addEventListener("input",search);
