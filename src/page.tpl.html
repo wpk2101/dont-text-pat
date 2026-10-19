@@ -127,16 +127,17 @@ footer{color:var(--muted);font-size:.85rem}
 <div class="wrap">
 <header>
   <div class="brand"><img src="data:image/png;base64,__LOGO__" alt="">
-  <div><div class="label">2026-27 season · prices checked Oct 18</div>
+  <div><div class="label">2026-27 season · updated Oct 18</div>
   <h1>Don't Text <span>Pat</span> <small>(any fantasy basketball questions)</small></h1>
-  <p class="sub">Draft board, dates and money for 2026-27.</p>
+  <p class="sub">Draft results, dates and money for 2026-27.</p>
   <a class="jump" href="#info">Draft and season info ↓</a></div></div>
 </header>
 
 <section id="board">
-  <h2>Draft board</h2>
-  <p class="bnote">Keepers locked Sun Oct 18 at noon. Rosters have 12 spots, so max bid = budget left minus $1 for each other open spot.</p>
-  <div class="board" id="boardList"></div>
+  <h2>Draft results</h2>
+  <p class="bnote">Every team's roster from the Oct 18 auction. Tap a player for his 2027 keeper price.</p>
+  <div class="teams" id="dteams"></div>
+  <div class="roster" id="droster"></div>
 </section>
 
 
@@ -146,12 +147,6 @@ footer{color:var(--muted);font-size:.85rem}
   <div class="tries"><span class="label">Try</span>
     <button class="chip" data-q="Trade deadline">Trade deadline</button><button class="chip" data-q="Waivers">Waivers</button><button class="chip" data-q="Playoffs">Playoffs</button><button class="chip" data-q="Dues">Dues</button></div>
   <div id="results" aria-live="polite"></div>
-</section>
-
-<section id="pool">
-  <h2>Best players back in the auction</h2>
-  <p class="bnote">Ranked by RotoWire's category-league top 150 (Oct 9). 2025 price is what he cost last year.</p>
-  <div class="roster" id="poolList"></div>
 </section>
 
 <section id="changes">
@@ -199,14 +194,8 @@ footer{color:var(--muted);font-size:.85rem}
   </div>
 </section>
 
-<section>
-  <details class="old"><summary><span>Keeper prices by team</span><small>Pre-lock rosters, for reference</small></summary>
-  <div class="teams" id="teams"></div>
-  <div class="roster" id="roster"></div>
-</details>
-</section>
 
-<footer>Last updated Oct 18, 2026, including trades through Oct 18. Prices come from ESPN end-of-season rosters, the 2025 draft recap, and the league keeper sheet. See something wrong? Tell Pat before keepers lock Sun Oct 18, noon ET.</footer>
+<footer>Last updated Oct 18, 2026 with draft results. Prices come from ESPN end-of-season rosters, the 2025 draft recap, and the league keeper sheet. See something wrong? Tell Pat before keepers lock Sun Oct 18, noon ET.</footer>
 </div>
 
 <script>
@@ -227,13 +216,11 @@ function mathLine(p){
   if(!p.eligible) return `Picked up ${fmtD(p.date)}, after the Feb 23 pickup deadline, so he can't be kept this year.`;
   return `${baseLine(p)} + <b>$${5*p.yrs}</b> (${p.yrs===1?"1st year":ord(p.yrs)+" straight year"} × $5) = <b>$${p.price}</b><div class="next">If kept again in 2027: $${p.price+5*(p.yrs+1)}</div>`;
 }
-let KEPT=null;
-function card(p){
-  if(!KEPT){KEPT={};for(const b of BOARD)for(const k of b.keepers)KEPT[k.n]=b.owner;}
-  const t=OWN[p.t];
-  if(KEPT[p.n]) return `<div class="card"><div class="nm">${esc(p.n)}<span class="yr">${ord(p.yrs)}-year keeper</span></div><div class="tm">Kept by ${KEPT[p.n]}</div><div class="px">$${p.price}<small>keeper price</small></div><div class="math">${mathLine(p)}</div></div>`;
-  const last=baseLine(p);
-  return `<div class="card no"><div class="nm">${esc(p.n)}</div><div class="tm">Not kept · was on ${t.owner}</div><div class="px">In the auction</div><div class="math">${last}. Back in the player pool for tonight's draft.</div></div>`;
+function card(p){ return dcard(p.n); }
+function dcard(n){
+  const d=DBY[n];
+  if(d) return `<div class="card"><div class="nm">${esc(n)}${d.kept?`<span class="yr">keeper</span>`:""}</div><div class="tm">${d.owner}</div><div class="px">$${d.price}<small>${d.kept?"keeper price":"draft price"}</small></div><div class="math">${draftLine(d)}</div></div>`;
+  return `<div class="card no"><div class="nm">${esc(n)}</div><div class="tm">Not drafted</div><div class="px">Free agent</div><div class="math">Pick him up by Feb 22, 2027 to be able to keep him next season.</div></div>`;
 }
 
 /* Questions typed into search */
@@ -246,7 +233,7 @@ const INFO=[
  {k:["season","regular","end","ends"],h:"Regular season ends",a:"Sun Mar 7, 2027 · playoffs start Mon Mar 8"},
  {k:["draft","auction"],h:"Draft",a:"Sun Oct 18 · 8:15pm ET · $200 budget"},
  {weak:1,k:["keeper","keepers","keep","lock","locks"],h:"Keepers",a:"3 per team · lock Sun Oct 18, noon ET"},
- {k:["board","left","max","maxbid","kept","available","pool"],h:"Draft board",a:"Every team's keepers, budget left and max bid are in the draft board below"},
+ {k:["board","left","max","maxbid","kept","available","pool"],h:"Draft results",a:"Every team's roster and prices are in Draft results below"},
  {k:["cap","budget","salary"],h:"Salary cap",a:"$200"},
  {k:["dues","due","owe","pay","fee","buyin","venmo"],h:"Dues",a:"$65"},
  {k:["payout","payouts","prize","prizes","money","win","winner","first","second","third","champ","champion"],h:"Payouts",a:"1st $300 + $100 memorabilia fund · 2nd $150 · 3rd $50 · Regular season champ $50"},
@@ -301,34 +288,40 @@ function search(){
   if(!target) for(const w of s.split(" ")) if(ALIAS[w]){target=ALIAS[w];break;}
   let infos=target?[]:infoHits(s);
   let html=infos.map(it=>`<div class="card info"><div class="nm">${it.h}</div><div class="ans">${it.a}</div><a class="more" href="#info">All draft and season info ↓</a></div>`).join("");
-  const hits=matchList(DATA.players.map(p=>p.n),s,target).sort((a,b)=>a[1]-b[1]||(PBY[b[0]].price||0)-(PBY[a[0]].price||0));
+  const ALLN=[...new Set([...Object.keys(DBY),...DATA.players.map(p=>p.n)])];
+  const hits=matchList(ALLN,s,target).sort((a,b)=>a[1]-b[1]||((DBY[b[0]]||{}).price||0)-((DBY[a[0]]||{}).price||0));
   const off=matchList(DATA.offRoster,s,target).sort((a,b)=>a[1]-b[1]);
-  const all=[...hits.map(h=>({n:h[0],sc:h[1],p:PBY[h[0]]})),...off.map(h=>({n:h[0],sc:h[1]}))].sort((a,b)=>a.sc-b.sc);
+  const all=[...hits.map(h=>({n:h[0],sc:h[1],p:{n:h[0]}})),...off.map(h=>({n:h[0],sc:h[1]}))].sort((a,b)=>a.sc-b.sc);
   // if there are exact/prefix hits, hide the fuzzy guesses
   if(all.length) infos=infos.filter(i=>!i.weak);
   html=infos.map(it=>`<div class="card info"><div class="nm">${it.h}</div><div class="ans">${it.a}</div><a class="more" href="#info">All draft and season info ↓</a></div>`).join("");
   const strong=all.filter(x=>x.sc<=1.5);
   const shown=(strong.length?strong:all).slice(0,infos.length?3:8);
-  html+=shown.map(x=>x.p?card(x.p):`<div class="card no"><div class="nm">${esc(x.n)}</div><div class="tm">Not on a roster at the end of last season</div><div class="px">In the auction</div></div>`).join("");
+  html+=shown.map(x=>x.p?card(x.p):dcard(x.n)).join("");
   out.innerHTML=html||`<div class="empty">Nothing matches "${esc(q.value)}". Try a last name, or a question like "trade deadline" or "dues". Undrafted players who were never picked up have no keeper price.</div>`;
 }
 q.addEventListener("input",search);
 document.querySelectorAll(".tries .chip").forEach(b=>b.onclick=()=>{q.value=b.dataset.q;search();q.focus();});
 
 
-const BOARD=__BOARD__, POOL=__POOL__;
-document.getElementById("boardList").innerHTML=[...BOARD].sort((a,b)=>b.left-a.left).map(b=>`<div class="bt${b.keepers.length?"":" none"}"><div class="o">${b.owner}</div><div class="m">$${b.left} left<small>max bid $${b.max}</small></div><div class="ks">${b.keepers.length?b.keepers.map(k=>`${esc(k.n)} $${k.price}`).join(" · "):"No keepers set in ESPN"}</div></div>`).join("");
-document.getElementById("poolList").innerHTML=POOL.slice(0,25).map(x=>`<div class="pr"><div class="rk">${x.r}</div><div class="nm">${esc(x.n)}</div><div class="ls">${x.last?`2025: $${x.last}`:""}${x.was?` · ${x.was}`:""}</div></div>`).join("");
-const teamsEl=document.getElementById("teams"), rosterEl=document.getElementById("roster");
-function showTeam(ab){
-  teamsEl.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.ab===ab));
-  const ps=DATA.players.filter(p=>p.t===ab).sort((a,b)=>(b.price??-1)-(a.price??-1));
-  rosterEl.innerHTML=`<div class="rhead"><span>Player</span><span>Keeper price</span></div>`+ps.map(p=>`<details class="row${p.eligible?"":" no"}"><summary><div class="p"><div>${esc(p.n)}${p.eligible&&p.yrs>1?`<span class="yr">${ord(p.yrs)}-yr keeper</span>`:""}</div></div><div class="v">${p.eligible?"$"+p.price:"Not keepable"}</div><span class="chev" aria-hidden="true"></span></summary><div class="exp">${mathLine(p)}</div></details>`).join("");
-  try{localStorage.setItem("team",ab)}catch(e){}
+const DRES=__DRAFT__;
+const DBY={};for(const tm of DRES)for(const p of tm.players)DBY[p.n]={...p,owner:tm.owner};
+const dteams=document.getElementById("dteams"), droster=document.getElementById("droster");
+function draftLine(p){
+  const how=p.kept?`Kept at <b>$${p.price}</b> (${ord(p.yrs)}-year keeper)`:`Drafted for <b>$${p.price}</b>`;
+  const nk=p.kept?p.yrs+1:1;
+  return `${how}<div class="next">If kept in 2027: $${p.price} + $${5*nk} (${nk===1?"1st year":ord(nk)+" straight year"} × $5) = <b>$${p.next}</b></div>`;
 }
-DATA.teams.forEach(t=>{const b=document.createElement("button");b.className="chip";b.dataset.ab=t.ab;b.textContent=t.owner;b.onclick=()=>showTeam(t.ab);teamsEl.appendChild(b);});
-let saved=null;try{saved=localStorage.getItem("team")}catch(e){}
-showTeam(OWN[saved]?saved:DATA.teams[0].ab);
+function showDraft(ab){
+  dteams.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.ab===ab));
+  const tm=DRES.find(x=>x.ab===ab);
+  droster.innerHTML=`<div class="rhead"><span>Player · $${tm.spent} of $200 spent</span><span>Price</span></div>`+tm.players.map(p=>`<details class="row"><summary><div class="p"><div>${esc(p.n)}${p.kept?`<span class="yr">keeper</span>`:""}</div></div><div class="v">$${p.price}</div><span class="chev" aria-hidden="true"></span></summary><div class="exp">${draftLine(p)}</div></details>`).join("");
+  try{localStorage.setItem("dteam",ab)}catch(e){}
+}
+DRES.forEach(tm=>{const b=document.createElement("button");b.className="chip";b.dataset.ab=tm.ab;b.textContent=tm.owner;b.onclick=()=>showDraft(tm.ab);dteams.appendChild(b);});
+let dsaved=null;try{dsaved=localStorage.getItem("dteam")}catch(e){}
+showDraft(DRES.some(x=>x.ab===dsaved)?dsaved:DRES[0].ab);
+
 
 const DRAFT=[
  ["Keepers per team",null,"3"],

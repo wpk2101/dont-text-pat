@@ -2,6 +2,6 @@
 import os
 os.chdir(os.path.join(os.path.dirname(__file__),".."))
 t=open("src/page.tpl.html").read()
-body=t.replace("__DATA__",open("src/data.json").read()).replace("__LOGO__",open("src/logo.b64").read()).replace("__BOARD__",open("src/board.json").read()).replace("__POOL__",open("src/pool.json").read())
+body=t.replace("__DATA__",open("src/data.json").read()).replace("__LOGO__",open("src/logo.b64").read()).replace("__DRAFT__",open("src/draft2026.json").read())
 i=body.index("</style>")+len("</style>")
 open("index.html","w").write(open("src/head.html").read()+body[:i]+"\n</head>\n<body>\n"+body[i:]+"\n</body>\n</html>\n")
